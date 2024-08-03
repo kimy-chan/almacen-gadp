@@ -1,0 +1,186 @@
+{% extends '../base.html' %}
+{% load static %}
+{% block index %}
+
+<div class="container table-responsive">
+    <h2 class="text-center">Cuentas de usuario</h2>
+    <div class="row justify-content-start">
+        <div class="col-auto me-2">
+            <a class="btn btn-success btn-sm" href="{% url 'creando_usuarios' %}">Añadir Usuario</a>
+        </div>
+    </div>
+
+    <table class="table table-striped mt-4">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Nombre Completo</th>
+                <th scope="col">C.I</th>
+                <th scope="col">Usuario</th>
+                <th scope="col">Rol</th>
+                <th scope="col">Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for cuentas in data %}
+            <tr>
+                <td>{{cuentas.persona.nombre}} {{cuentas.persona.apellidos}}</td>
+                <td>{{cuentas.persona.cedula_identidad}}</td>
+                <td>{{cuentas.username}}</td>
+                <td>{{cuentas.rol}}</td>
+
+
+                <td>
+                    <a class="btn btn-secondary btn-sm"
+                        href="{% url 'actulizar_cuenta_usuario' cuentas.id cuentas.persona.id  %}">Editar</a>
+                    <a class="btn btn-danger btn-sm" href="{% url 'eliminar_cuenta' cuentas.id %}">eliminar</a>
+                    {%if cuentas.es_activo %}
+                    <a class="btn btn-warning btn-sm" href="{% url 'desactivar_cuenta' cuentas.id %}">Desactivar</a>
+                    {%else%}
+                    <a class="btn btn-success btn-sm" href="{% url 'activar_cuenta' cuentas.id %}">Activar</a>
+                    {% endif %}
+
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+    <!--modal secretaria-->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Secreatarias</h5>
+
+                </div>
+                <div class="modal-body">
+                    <div class="col-auto me-2 ms-2">
+                        <form id="form_secretaria" action="{%url 'crear_secretaria_listar' %}" method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="id_secretaria">Nombre secretaria</label>
+                                    <input type="text" id="id_secretaria" name="secretaria" class="form-control"
+                                        required>
+                                    <span id="error"></span>
+                                </div>
+                                <div class="col-2" style="margin-top: 28px;">
+                                    <button id="guardar_secretaria" class="btn btn-success btn-sm"
+                                        type="submit">Añadir</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <table class="table ">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Secreataria</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody_table">
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!--fin modal Area de tarabajo-->
+
+
+    <div class="modal fade" id="modalUnidad" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Unidad</h5>
+
+                </div>
+                <div class="modal-body">
+                    <div class="col-auto me-2 ms-2">
+                        <form id="unidadform" action="{%url 'unidad' %}" method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="id_secretaria">Nombre unidad</label>
+                                    <input type="text" id="id_secretaria" name="unidad" class="form-control" required>
+                                    <span id="error_unidad"></span>
+                                </div>
+                                <div class="col-2" style="margin-top: 28px;">
+                                    <button id="unidad" class="btn btn-success btn-sm" type="submit">Añadir</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <table class="table ">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Unidad</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody_table_unidad">
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    <div class="modal fade" id="oficinas" tabindex="-1" role="dialog" aria-labelledby="oficinas" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Oficinas</h5>
+
+                </div>
+                <div class="modal-body">
+                    <div class="col-auto me-2 ms-2">
+                        <form id="id_form_oficinas" method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="ofcinas">Oficinas</label>
+                                    <input type="text" id="oficinas" name="oficinas" class="form-control" required>
+                                    <span id="error_oficinas"></span>
+                                </div>
+                                <div class="col-2" style="margin-top: 28px;">
+                                    <button id="id_oficinas" class="btn btn-success btn-sm"
+                                        type="submit">Añadir</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% include 'paginador/paginador.html' %}
+</div>
+
+
+
+{% endblock index %}
+
+{% block js %}
+
+
+
+{% endblock js %}

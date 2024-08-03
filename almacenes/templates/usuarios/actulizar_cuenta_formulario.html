@@ -1,0 +1,91 @@
+{% extends '../base.html' %}
+
+{% block index %}
+
+
+<div class="container">
+    <div class="text-center">
+        <h2>Actulizar cuenta</h2>
+    </div>
+    <form action="{% url 'actulizar_cuenta_usuario' usuario.id persona.id %}" method="POST">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-6">
+                {{ form_persona }}
+                <label for="{{ form_usuario.email.id_for_label }}"> {{ form_usuario.email.label}}: </label>
+                {{ form_usuario.email }}
+                {{form_usuario.email.errors}}
+                <label for="{{ form_usuario.item.id_for_label }}"> {{form_usuario.item.label}}:
+                </label>
+                {{ form_usuario.item}}
+                {{form_usuario.item.errors}}
+                <label for="{{ form_usuario.cargi.id_for_label }}"> {{form_usuario.cargo.label}}
+                </label>
+                {{ form_usuario.cargo}}
+                {{form_usuario.cargo.errors}}
+            </div>
+            <div class="col-6">
+
+                <label for="{{ form_usuario.username.id_for_label }}"> {{ form_usuario.username.label}}: </label>
+                {{ form_usuario.username }}
+                {{form_usuario.username.errors}}
+                <label for="{{ form_usuario.password.id_for_label }}"> {{ form_usuario.password.label}}: </label>
+                {{ form_usuario.password }}
+                <label for="{{ form_usuario.confirmar_password.id_for_label }}">
+                    {{form_usuario.confirmar_password.label}}:
+                </label>
+                {{ form_usuario.confirmar_password }}
+                {{form_usuario.confirmar_password.errors}}
+
+
+
+                <label for="{{ form_usuario.rol.id_for_label }}"> {{form_usuario.area_trabajo.label}}:
+                </label>
+                {{ form_usuario.area_trabajo }}
+                {{form_usuario.area_trabajo.errors}}
+
+
+                <label for="{{ form_usuario.rol.id_for_label }}"> {{form_usuario.rol.label}}:
+                </label>
+                {{ form_usuario.rol }}
+                {{form_usuario.rol.errors}}
+
+                <div>
+                    <span>Seleccionar permisos solo para Almacen</span> <br>
+                    {{ form_usuario.crear.label}}
+                    {{ form_usuario.crear}}
+                    {{ form_usuario.editar.label}}
+                    {{ form_usuario.editar}}
+                    {{ form_usuario.eliminar.label}}
+                    {{ form_usuario.eliminar}}
+
+                </div>
+
+                <label for="{{ form_usuario.encargado_unidad.id_for_label }}"> {{form_usuario.encargado_unidad.label}}:
+                </label>
+                {{ form_usuario.encargado_unidad}}
+                {{form_usuario.encargado_unidad.errors}}
+                <label for="{{ form_usuario.secretaria.id_for_label }}"> {{form_usuario.secretaria.label}}:
+                </label>
+                {{ form_usuario.secretaria}}
+                {{form_usuario.secretaria.errors}}
+
+                <label for="{{ form_usuario.encargado_secretaria.id_for_label }}">
+                    {{form_usuario.encargado_secretaria.label}}:
+                </label>
+                {{ form_usuario.encargado_secretaria}}
+                {{form_usuario.encargado_secretaria.errors}}
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <button class="btn btn-success" type="submit">Guardar</button>
+
+        </div>
+    </form>
+
+
+</div>
+
+
+
+{% endblock index %}

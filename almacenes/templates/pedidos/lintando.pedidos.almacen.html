@@ -1,0 +1,165 @@
+{% extends '../base.html' %}
+{% load static %}
+{% block index %}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h3>Datos Personales</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Nombre:</h5>
+                    <p class="card-text">{{ data.0.usuario.persona.nombre }} {{ data.0.usuario.persona.apellidos }}</p>
+                    <h5 class="card-title">Correo Electrónico:</h5>
+                    <p class="card-text">{{ data.0.usuario.persona.email }}</p>
+                    <h5 class="card-title">Unidad:</h5>
+                    <p class="card-text">{{ data.0.usuario.unidad}}</p>
+
+                    <!-- Enlaces para ver los pedidos aceptados y no aceptados -->
+                    <div class="mt-3">
+                        <a href="" class="btn btn-success">Ver Pedidos Aceptados</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h3>Solicitudes por aprobar</h3>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Descripción</th>
+                    <th>Cantidad de pedido</th>
+                    <th>Cantidad de entrega</th>
+                    <th>Estado de entrega</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in data %}
+                <tr>
+                    <td>{{ pedido.material.nombre }}</td>
+                    <td>{{ pedido.descripcion }}</td>
+                    <td>{{ pedido.cantidad_pedida }}</td>
+                    <td>{{ pedido.cantidad_entrega }}</td>
+                    <td>{{pedido.estado_pedido_almacen}}</td>
+                    {% if not pedido.fecha_entrega_salida %}
+                    <td>Nulo</td>
+                    {%else%}
+                    <td>{{pedido.fecha_entrega_salida}}</td>
+                    {%endif%}
+
+
+                    <td>
+                        {% if pedido.aprobado_almacen %}
+                        <button onclick="listar_pedido_id('{{ pedido.id }}')" type="button"
+                            class="btn btn-primary btn-sm" data-toggle="modal" data-target="#example_entrega">
+                            Realizar entrega
+                        </button>
+                        {% else %}
+                        <div class="form-group mt-3">
+                            <a href="{% url 'autorizar_pedido_almacen' pedido.id pedido.usuario.id%}"
+                                class="btn btn-success btn-sm" type="submit" name="action" value="aprobar">Aprobar</a>
+                            <a class="btn btn-danger btn-sm" type="submit" name="action" value="rechazar">Rechazar</a>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="example_entrega" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Realizar Entrega</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-auto me-2 ms-2">
+                    <form id="form_entrega" action="{%url 'realizar_entrega' %}" method="POST">
+                        {% csrf_token %}
+                        <input id="id" type="number" hidden>
+                        <input type="hidden" id="pedido_id" value="2" name="pedido_id">
+                        <div class="form-group">
+                            <label for="product_code">Código del Producto:</label>
+                            <p id="codigo" class="form-control-plaintext"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product_name">Nombre del Producto:</label>
+                            <p id="producto" class="form-control-plaintext"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product_quantity">Cantidad:</label>
+                            <p id="cantidad" class="form-control-plaintext"></p>
+                        </div>
+
+                        <!-- Campo para ingresar la cantidad entregada -->
+                        <div class="form-group">
+                            <label for="id_entrega">Ingrese la cantidad entregada:</label>
+                            <input type="number" id="id_entrega" name="cantidad_entregada" class="form-control"
+                                required>
+                        </div>
+
+                        <button id="guardar_entrega" class="btn btn-success" type="submit">Añadir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock index %}
+{% block js %}
+
+<script>
+    function listar_pedido_id(id) {
+        axios.get(`lista_pedido_por_id/${id}`)
+            .then((result) => {
+                if (result.data.data) {
+                    document.getElementById('pedido_id').value = result.data.data.id;
+                    document.getElementById('producto').innerHTML = result.data.data.nombre
+                    document.getElementById('codigo').innerHTML = result.data.data.codigo
+                    document.getElementById('cantidad').innerHTML = result.data.data.cantidad
+                    document.getElementById('id').innerHTML = result.data.data.id
+                }
+
+            }).catch((err) => {
+                alert(err)
+            });
+    }
+    document.getElementById('guardar_entrega').addEventListener('click', (e) => {
+        const formulario = document.getElementById('form_entrega')
+        axios.post('realizar_entrega', formulario)
+            .then((result) => {
+                console.log(result);
+            })
+            .catch((e) => {
+                alert(e)
+            })
+    })
+</script>
+<script src="{% static 'js/alertas.js' %}"></script>
+
+
+
+
+{% endblock js %}

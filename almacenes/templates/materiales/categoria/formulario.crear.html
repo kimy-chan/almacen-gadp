@@ -1,0 +1,96 @@
+{% extends '../../base.html' %}
+
+{% block index %}
+<div class="container">
+    <!-- Button trigger modal -->
+
+    <div>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
+            Nueva categoría
+        </button>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Añadir categoría</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="categoriaForm" action="{% url 'crear_categoria' %}" method="POST" class="needs-validation"
+                        novalidate>
+                        {% csrf_token %}
+                        <label for="{{ form.nombre.id_for_label }}"> {{ form.nombre.label}}: </label>
+                        {{form.nombre}}
+                        <span id="nombre"></span>
+                        <br>
+                        <label for="{{ form.codigo_clasificacion.id_for_label }}"> {{form.codigo_clasificacion.label}}:
+                        </label>
+                        {{form.codigo_clasificacion}}
+                        <span id="codigo"></span>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-success" id="submitBtn" type="submit">Guardar</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Nombre categoria</th>
+                    <th scope="col">Codigo</th>
+                    <th scope="col">Fecha</th>
+
+                    <th scope="col">Acciones</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {%for categoria in categorias %}
+                <tr>
+                    <td>{{categoria.nombre}}</td>
+                    <td>{{categoria.codigo_clasificacion}}</td>
+                    <td>{{categoria.fecha_creacion}}</td>
+                    <td>edita| eliminar</td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+<script>
+    document.getElementById("submitBtn").addEventListener("click", (e) => {
+        e.preventDefault()
+        var formData = new FormData(document.getElementById("categoriaForm"));
+        axios.post('crear_categoria', formData)
+            .then((resultado) => {
+                if (resultado.data.errores) {
+                    console.log(resultado.data.errores.nombre);
+                    if (resultado.data.errores.nombre) {
+                        document.getElementById('nombre').innerHTML = resultado.data.errores.nombre
+                    }
+                    if (resultado.data.errores.codigo_clasificacion) {
+                        document.getElementById('codigo').innerHTML = resultado.data.errores.codigo_clasificacion
+                    }
+                } else if (resultado.data) {
+                    window.location.reload()
+                }
+            }).catch((e) => {
+                alert('Error de servidor')
+            })
+    })
+</script>
+
+
+{% endblock index %}

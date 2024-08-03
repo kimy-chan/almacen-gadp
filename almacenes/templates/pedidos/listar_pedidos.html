@@ -1,0 +1,70 @@
+{% extends '../base.usuarios.html' %}
+{% load static %}
+{% block usuario %}
+
+
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Nombre completo</th>
+                <th>Material</th>
+                <th>descripcion</th>
+
+                <th>Cantidad de pedido</th>
+
+                <th>fecha de pedido</th>
+                <th>fecha de Autorizacion</th>
+                <th>Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pedido in data %}
+            <tr>
+                <td>{{ pedido.material.codigo }}</td>
+                <td>{{ pedido.usuario.persona.nombre }} {{ pedido.usuario.persona.apellidos }}</td>
+                <td>{{ pedido.material.nombre }}</td>
+                <td>{{ pedido.descripcion }}</td>
+                <td>{{ pedido.cantidad_pedida}} {{ pedido.unidad_manejo}}</td>
+
+                </td>
+                <td>{{ pedido.fecha_pedido|date:"m/d/y" }}</td>
+
+                <td>{% if pedido.fecha_de_autorizacion %}
+                    {{pedido.fecha_de_autorizacion|date:"m/d/Y H:i:s"}}
+                    {% endif %}
+                </td>
+                <td>
+
+                    {% if pedido.estado_pedido %}<!--Estado de rechazo-->
+                    <button class="btn btn-danger btn-sm" disabled="disabled">rechazado</button>
+                    {% elif pedido.estado_autorizacion_unidad %}
+                    <button class="btn btn-success btn-sm" disabled="disabled">Autorizado</button>
+                    {% else %}
+                    <div class="row">
+                        <div class="col-6"><a href="{%url 'autorizar_pedido' pedido.id %}"
+                                class="btn btn-success btn-sm">Autorizar</a>
+                        </div>
+                        <div class="col-6"><a href="{%url 'rechazar_pedido' pedido.id %}"
+                                class="btn btn-danger btn-sm">rechazar</a></div>
+                    </div>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+    {% include 'paginador/paginador.html' %}
+
+</div>
+
+{% endblock usuario %}
+
+{% block js %}
+
+<script src="{% static 'js/alertas.js' %}">
+
+</script>
+
+{% endblock js %}

@@ -1,0 +1,94 @@
+{% extends '../base.usuarios.html' %}
+{% load static %}
+{% block usuario %}
+
+<div class="container mt-2">
+    <div class="text-center">
+        <h2>{{ title}}</h2>
+    </div>
+    <div>
+        {{ error }}
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Material</th>
+                <th>descripcion</th>
+
+                <th>Cantidad de pedido</th>
+                <th>Cantidad de entrega</th>
+                <th>Fecha</th>
+                <th>Accion</th>
+
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for pedido in data %}
+            <tr>
+                <td>{{ pedido.material.codigo }}</td>
+                <td>{{ pedido.material.nombre }}</td>
+                <td>{{ pedido.descripcion }}</td>
+                <td>{{ pedido.cantidad_pedida }}</td>
+                <td>{{ pedido.cantidad_entrega }}</td>
+                <td>{{ pedido.fecha_pedido|date:"m/d/y" }}</td>
+                <td>
+                    <button onclick="mostrar_aprobaciones_pedido('{{pedido.id}}')"
+                        class='btn btn-success btn-sm'>Informacion</button>
+                    <a href="{%url 'eliminar_mi_pedido' pedido.id %}" class='btn btn-danger btn-sm'>Cancelar pedido</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+    {% include 'paginador/paginador.html' %}
+</div>
+
+
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="infoModalLabel">Información del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Secretaria</th>
+                                <th scope="col">Cargo</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Fecha de aprobacion</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="tbody_table">
+                            <!-- Aquí se cargarán dinámicamente los datos -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+{% endblock usuario %}
+
+{% block js %}
+<script src="{% static 'js/listar_aprobaciones.js' %}"></script>
+<script src="{% static 'js/alertas.js' %}"></script>
+{% endblock js %}

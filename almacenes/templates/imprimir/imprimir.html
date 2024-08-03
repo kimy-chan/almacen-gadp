@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido de Materiales</title>
+    <style>
+        /* Estilos básicos para el cuerpo */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        /* Estilo para el contenedor principal */
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo para el encabezado */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h4 {
+            margin: 0;
+            color: #007bff;
+        }
+
+        .header p {
+            margin: 5px 0 0;
+            color: #666;
+        }
+
+        /* Estilos para la tabla */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        /* Estilo para las filas alternas de la tabla */
+        .table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Estilo para la tabla de firmas */
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .signature-table td {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .signature {
+            border: 1px solid #ddd;
+            height: 80px;
+            width: 100px;
+            background-color: #f4f4f4;
+            margin: 0 auto;
+        }
+
+        .signature-label {
+            font-weight: bold;
+        }
+
+        /* Estilo para el botón */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Centrado de texto */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 20px;
+        }
+
+        .no-print {
+            display: none;
+            /* Oculta elementos que no deberían imprimirse */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h4>PEDIDO DE MATERIALES y/o BIENES</h4>
+            <p>Almacén Central del Gobierno Autónomo Departamental de Potosí</p>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>CÓDIGO</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th>Unidad de Manejo</th>
+                    <th>Cantidad Pedida</th>
+                    <th>Cantidad Entrega</th>
+                    <th>Partida Presupuestada</th>
+                    <th>Costo Unidad</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ pedido.material.codigo }}</td>
+                    <td>{{ pedido.descripcion }}</td>
+                    <td>{{ pedido.unidad_manejo }}</td>
+                    <td>{{ pedido.cantidad_pedida }}</td>
+                    <td>{{ pedido.cantidad_entrega }}</td>
+                    {%if pedido.partida_presupuestada == None %}
+                    <td>0</td>
+                    {% else %}
+                    <td>{{ pedido.partida_presupuestada }}</td>
+                    {% endif %}
+                    <td>{{ pedido.material.precio_unidad }}</td>
+                    <td>{{ pedido.material.precio_unidad }}</td>
+                </tr>
+                <!-- Repeat the above <tr> block for each item -->
+            </tbody>
+        </table>
+
+        <!-- Tabla para firmas -->
+        <table class="signature-table">
+            <tr>
+                <td>
+                    <p>..........................................</p>
+                    <p class="signature-label">Pedido por</p>
+                    <p>Nombre, cargo y firma</p>
+                </td>
+                <td>
+                    <p>..........................................</p>
+                    <p class="signature-label">Autorizado por</p>
+                    <p>Nombre, cargo y firma</p>
+                </td>
+                <td>
+                    <p>..........................................</p>
+                    <p class="signature-label">Entregado por</p>
+                    <p>Nombre, cargo y firma</p>
+                </td>
+                <td>
+                    <p>..........................................</p>
+                    <p class="signature-label">Recibido por</p>
+                    <p>Nombre, cargo y firma</p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <p>..........................................</p>
+                    <p class="signature-label">Control Existencias</p>
+                    <p>Nombre, cargo y firma</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

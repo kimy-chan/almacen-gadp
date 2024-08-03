@@ -1,0 +1,25 @@
+{% extends '../base.html' %}
+
+{% block index %}
+
+
+<h2>Añadir material</h2>
+<div class="container">
+    <form action="{%url 'crear_material' %}" method="POST">
+        {% csrf_token %}
+        <div class="row">
+            {%for field in form %}
+            <div class="col-6">
+                <label for="exampleFormControlInput1" class="form-label">{{field.label}}</label>
+                {{field}}
+                {{field.errors}}
+            </div>
+            {% endfor%}
+        </div>
+        <div class="text-center mt-3">
+            <button class="btn btn-success">Guardar</button>
+        </div>
+    </form>
+</div>
+
+{% endblock index %}

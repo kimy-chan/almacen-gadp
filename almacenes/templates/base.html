@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almacenes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .sidebar .nav-link {
+            color: #b3b8bd;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #e9ecef;
+            color: #484c50;
+        }
+
+        .sidebar {
+            background-color: #1f1e1e;
+        }
+
+        /* Estilos para el acordeón */
+        .accordion-item {
+            background-color: #1f1e1e;
+            /* Color de fondo del acordeón */
+            border: none;
+            /* Sin borde en el acordeón */
+            margin-bottom: 5px;
+            /* Espacio entre ítems del acordeón */
+        }
+
+        .accordion-button {
+            background-color: #1f1e1e;
+            /* Color de fondo del botón del acordeón */
+            color: white;
+            /* Color del texto del botón del acordeón */
+        }
+
+        .accordion-button:hover {
+            background-color: #373838;
+            /* Color de fondo del botón del acordeón al pasar el mouse */
+        }
+
+        .accordion-collapse {
+            background-color: #343a40;
+            /* Color de fondo del cuerpo del acordeón */
+            border: none;
+            /* Sin borde en el cuerpo del acordeón */
+        }
+
+        .accordion-item a.nav-link {
+            color: white;
+            /* Color del texto de los enlaces del acordeón */
+        }
+
+        .accordion-item a.nav-link:hover {
+            color: #000000;
+            /* Color del texto de los enlaces del acordeón al pasar el mouse */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                    <a href="/"
+                        class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                        <span class="fs-5 d-none d-sm-inline">Menu</span>
+                    </a>
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+                        id="menu">
+                        <li class="nav-item">
+                            <a href="/administracion" class="nav-link align-middle px-0">
+                                <i class="bi-house-door"></i> <span
+                                    class="ms-1 d-none d-sm-inline">Administración</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'crear_categoria' %}" class="nav-link align-middle px-0">
+                                <i class="bi-house-door"></i> <span class="ms-1 d-none d-sm-inline">Listar
+                                    categorias</span>
+                            </a>
+                        </li>
+
+
+
+                        <li>
+                            <div class="accordion" id="accordionExample">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingOne">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseOne" aria-expanded="true"
+                                            aria-controls="collapseOne">
+                                            Materiales
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOne" class="accordion-collapse collapse show"
+                                        aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <ul class="collapse show nav flex-column ms-1" id="submenu1"
+                                                data-bs-parent="#menu">
+                                                {% if usuario.crear %}
+                                                <li class="list-group-item"><a href="{% url 'crear_material' %}"
+                                                        class="nav-link">Nuevo
+                                                        Material</a></li>
+                                                {% endif %}
+                                                {% for categoria in listado_categoria %}
+                                                <li class="list-group-item"><a
+                                                        href="{% url 'categorias_por_id' categoria.id %}"
+                                                        class="nav-link">{{categoria.nombre}}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="/proveedor" class="nav-link px-0 align-middle">
+                                <i class="bi-people"></i> <span class="ms-1 d-none d-sm-inline">Proveedores</span></a>
+                        </li>
+                        <li>
+                            <a href="/listando_pedidos " class="nav-link px-0 align-middle ">
+                                <i class="bi-cart4"></i> <span class="ms-1 d-none d-sm-inline">Pedidos</span></a>
+                        </li>
+
+                        {% if usuario.rol == "Almacen" or usuario.rol == "Axuliar" %}
+                        {% else %}
+                        <li>
+                            <a href="/listando_usuarios" class="nav-link px-0 align-middle">
+                                <i class="bi-person"></i> <span class="ms-1 d-none d-sm-inline">Usuarios</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <li>
+                            <a href="/logout" class="nav-link px-0 align-middle">
+                                <i class="bi-person-circle"></i> <span class="ms-1 d-none d-sm-inline">Salir</span>
+                            </a>
+                        </li>
+
+
+                    </ul>
+
+                    <hr>
+                </div>
+            </div>
+            <div class="col py-3">
+                <!-- Contenido específico de la página -->
+                {% block index %}
+
+                {% endblock index %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts al final del cuerpo -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+
+    <!-- Bloque para scripts adicionales específicos -->
+    {% block js %}
+
+    {% endblock js %}
+</body>
+
+</html>

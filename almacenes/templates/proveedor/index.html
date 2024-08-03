@@ -1,0 +1,41 @@
+{% extends '../base.html' %}
+
+{% block index %}
+
+<div class="container table-responsive">
+    <h2 class="text-center">Lista de proveedores</h2>
+    <a class="btn btn-success" href="{%url 'añadir_proveedor' %}">Añadir proveedor</a>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Nombre Completo</th>
+                <th scope="col">C.I</th>
+                <th scope="col">Empresa</th>
+                <th scope="col">Nit</th>
+                <th scope="col">Telefono</th>
+                <th scope="col">Correo</th>
+                <th scope="col">Pais</th>
+                <th scope="col">Direccion</th>
+                <th scope="col">Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for proveedor in proveedores %}
+            <tr>
+                <td>{{proveedor.persona.nombre}} {{proveedor.persona.apellidos}}</td>
+                <td>{{proveedor.persona.cedula_identidad}}</td>
+                <td>{{proveedor.empresa}}</td>
+                <td>{{proveedor.nit}}</td>
+                <td>{{proveedor.telefono}}</td>
+                <td>{{proveedor.correo}}</td>
+                <td>{{proveedor.pais}}</td>
+                <td>{{proveedor.direccion}}</td>
+                <td>edita| eliminar</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock index %}

@@ -1,0 +1,44 @@
+{% extends '../base.html' %}
+
+{% block index %}
+<div class="container table-responsive">
+    <h2 class="text-center">{{ nombre_categoria.nombre }}</h2>
+    <table class="table table-striped table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Material</th>
+                <th scope="col">Código</th>
+                <th scope="col">Marca</th>
+                <th scope="col">Cant. por paquete</th>
+                <th scope="col">Paq. por unidad</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for material in data %}
+            <tr>
+                <td class="small-text">{{ material.nombre }}</td>
+                <td class="small-text">{{ material.codigo }}</td>
+                <td class="small-text">{{ material.marca }}</td>
+                <td class="small-text">{{ material.cantidad_paquete }}</td>
+                <td class="small-text">{{ material.cantidad_paquete_unidad }}</td>
+                <td class="small-text">{{ material.stock }}</td>
+                <td>
+
+                    {% if usuario.editar %}
+                    <a href="{% url 'editar_material' material.id %}" class="btn btn-secondary btn-sm">Editar</a>
+                    {% endif %}
+
+                    {% if usuario.eliminar %}
+                    <a href="{% url 'eliminar' material.id material.categoria.id %}"
+                        class="btn btn-danger btn-sm">Eliminar</a>
+                    {% endif %}
+                    <a href="{% url 'informacion_material' material.id %}" class="btn btn-info btn-sm">Ver más</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock index %}

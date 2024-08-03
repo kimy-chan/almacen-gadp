@@ -1,0 +1,35 @@
+{% extends '../base.html' %}
+
+{% block index %}
+
+
+<div class="container">
+    <div class="container mt-5">
+        <h2>Tabla de Pedidos</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre completo</th>
+                    <th>Unidad</th>
+                    <th>Fecha</th>
+
+                    <th>Informacion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in data %}
+                <tr>
+                    <td> {{ pedido.usuario.persona.nombre }} {{ pedido.usuario.persona.apellidos}} </td>
+                    <td>{{ pedido.usuario.unidad.nombre}}</td>
+                    <td>{{ pedido.fecha_pedido}}</td>
+                    <td><a href="{% url 'informacion_pedido' pedido.usuario.id %}" class="btn btn-info btn-sm">Info</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock index %}

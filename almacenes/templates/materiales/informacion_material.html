@@ -1,0 +1,44 @@
+{% extends '../base.html' %}
+
+{% block index %}
+<div class="container">
+    <h2 class="text-center mb-3">Información del Material</h2>
+    <div class="row p-5 card">
+        <div class="col-md-6">
+            <div class="container">
+                <p><strong>Nombre:</strong> {{ material.nombre }}</p>
+                <p><strong>Código:</strong> {{ material.codigo }}</p>
+                <p><strong>Marca:</strong> {{ material.marca }}</p>
+                <p><strong>Cantidad por Unidad:</strong> {{ material.cantidad_paquete_unidad }}</p>
+                <p><strong>Cantidad por Paquete:</strong> {{ material.cantidad_paquete }}</p>
+                <p><strong>Precio por Paquete:</strong> {{ material.precio_paquete|floatformat:2 }}</p>
+                <p><strong>Precio por Unidad:</strong> {{ material.precio_unidad|floatformat:2 }}</p>
+                <p><strong>Stock:</strong> {{ material.stock }}</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container">
+                <p><strong>Fecha de Creación:</strong> {{ material.fecha_creacion }}</p>
+                {% if material.tamaño %}
+                <p><strong>Tamaño:</strong> {{ material.tamaño }}</p>
+                {% endif %}
+                {% if material.color %}
+                <p><strong>Color:</strong> {{ material.color }}</p>
+                {% endif %}
+                {% if material.unidad_medida %}
+                <p><strong>Unidad de Medida:</strong> {{ material.unidad_medida }}</p>
+                {% endif %}
+                {% if material.material %}
+                <p><strong>Material:</strong> {{ material.material }}</p>
+                {% endif %}
+                {% if material.codigo_paquete %}
+                <p><strong>Código de Paquete:</strong> {{ material.codigo_paquete }}</p>
+                {% endif %}
+                {% if material.categoria.nombre %}
+                <p><strong>Categoría:</strong> {{ material.categoria.nombre }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock index %}

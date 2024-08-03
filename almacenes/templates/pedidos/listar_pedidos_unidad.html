@@ -1,0 +1,63 @@
+{% extends '../base.usuarios.html' %}
+
+{% block usuario %}
+
+<div class="container">
+    <div class="text-center">
+        <h2>{{ usuario.unidad.nombre }}</h2>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Nombre completo</th>
+                <th>oficina</th>
+                <th>Material</th>
+                <th>Descripcion</th>
+                <th>Cantidad de pedido</th>
+                <th>Fecha de pedido</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pedido in data %}
+            <tr>
+                <td>{{ pedido.material.codigo }}</td>
+                <td>{{ pedido.usuario.persona.nombre }} {{ pedido.usuario.persona.apellidos }}</td>
+                <td>{{ pedido.usuario.oficina.nombre }}</td>
+                <td>{{ pedido.material.nombre }}</td>
+                <td>{{ pedido.descripcion }}</td>
+                <td>{{ pedido.cantidad_pedida }} {{ pedido.unidad_manejo }}</td>
+                <td>{{ pedido.fecha_pedido|date:"m/d/y" }}</td>
+                <td>
+
+                </td>
+                <td>
+                    {% if pedido.aprobado_unidad == None %}
+                    <div class="row">
+                        <div class="col-6">
+                            <a href="{% url 'autorizar_pedido' pedido.id %}"
+                                class="btn btn-success btn-sm">Autorizar</a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'rechazar_pedido_unidad' pedido.id %}"
+                                class="btn btn-danger btn-sm">Rechazar</a>
+                        </div>
+                    </div>
+                    {% elif pedido.aprobado_unidad %}
+                    <a href="{% url 'imprimir' pedido.id %}" class="btn btn-danger btn-sm">PDF</a>
+                    {% elif pedido.aprobado_unidad == False %}
+                    <button class="btn btn-danger btn-sm" disabled>Rechazado</button>
+                    {% endif%}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'paginador/paginador.html' %}
+</div>
+
+
+
+{% endblock usuario %}
