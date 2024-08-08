@@ -19,11 +19,6 @@
                     <h5 class="card-title">Unidad:</h5>
                     <p class="card-text">{{ data.0.usuario.unidad}}</p>
 
-                    <!-- Enlaces para ver los pedidos aceptados y no aceptados -->
-                    <div class="mt-3">
-                        <a href="" class="btn btn-success">Ver Pedidos Aceptados</a>
-
-                    </div>
                 </div>
             </div>
         </div>
@@ -118,6 +113,7 @@
                             <input type="number" id="id_entrega" name="cantidad_entregada" class="form-control"
                                 required>
                         </div>
+                        <span id="mensaje"></span> <br>
 
                         <button id="guardar_entrega" class="btn btn-success" type="submit">Añadir</button>
                     </form>
@@ -147,10 +143,17 @@
             });
     }
     document.getElementById('guardar_entrega').addEventListener('click', (e) => {
+        e.preventDefault()
         const formulario = document.getElementById('form_entrega')
         axios.post('realizar_entrega', formulario)
             .then((result) => {
-                console.log(result);
+                if (result.data.data) {
+                    document.getElementById('mensaje').innerHTML = ""
+                    document.getElementById('mensaje').innerHTML = result.data.data
+                } else if (result.data.error) {
+                    document.getElementById('mensaje').innerHTML = result.data.error
+
+                }
             })
             .catch((e) => {
                 alert(e)

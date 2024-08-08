@@ -16,6 +16,24 @@
         .login-container {
             margin-top: 5%;
         }
+
+        .table-sm {
+            font-size: 0.9rem;
+            /* Reducir tamaño de fuente */
+        }
+
+        .table-sm td,
+        .table-sm th {
+            padding: 0.5rem;
+            /* Reducir padding */
+        }
+
+        .btn-sm {
+            font-size: 0.75rem;
+            /* Reducir tamaño del texto del botón */
+            padding: 0.25rem 0.5rem;
+            /* Reducir padding */
+        }
     </style>
 </head>
 
@@ -41,14 +59,43 @@
                                 <input type="password" class="form-control" id="password"
                                     placeholder="Ingrese su contraseña" name="password">
                                 <div class="text-center">
-                                    {{error_message}}
+                                    {{ error_message }}
                                 </div>
                             </div>
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary">Ingresar</button>
                             </div>
+                            <div class="text-center mt-2">
+                                <a href="#" data-toggle="modal" data-target="#passwordRecoveryModal">¿Olvidaste tu
+                                    contraseña?</a>
+                            </div>
                         </form>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de recuperación de contraseña -->
+    <div class="modal fade" id="passwordRecoveryModal" tabindex="-1" role="dialog"
+        aria-labelledby="passwordRecoveryModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordRecoveryModalLabel">Recuperar Contraseña</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                            placeholder="Ingrese su correo electrónico" required>
+                        <span id="mensaje"></span>
+                    </div>
+                    <button id="buscar" class="btn btn-primary">Buscar</button>
+                    <div id="cuenta"></div>
                 </div>
             </div>
         </div>
@@ -58,6 +105,69 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('buscar').addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            if (!email) {
+                return document.getElementById('mensaje').innerHTML = 'Ingrese su email'
+            }
+            axios.get(`buscar/cuenta/${email}`)
+                .then((result) => {
+                    const mensajeElement = document.getElementById('mensaje');
+                    const cuentaElement = document.getElementById('cuenta');
+
+                    // Limpiar mensajes anteriores
+                    mensajeElement.innerHTML = '';
+                    cuentaElement.innerHTML = '';
+
+                    if (result.data.mensaje) {
+                        mensajeElement.innerHTML = result.data.mensaje;
+                    } else if (result.data.data) {
+                        // Crear la tabla
+                        let tableHtml = `
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Usuario</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+
+                        // Agregar filas a la tabla
+                        result.data.data.forEach(element => {
+                            tableHtml += `
+                                <tr>
+                                    <td>${element.nombres}</td>
+                                    <td>${element.username}</td>
+                                    <td><button class="btn btn-secondary btn-sm select-btn" data-id="${element.id}">Seleccionar</button></td>
+                                </tr>`;
+                        });
+
+                        tableHtml += `
+                                </tbody>
+                            </table>`;
+
+                        cuentaElement.innerHTML = tableHtml;
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error al buscar la cuenta:', error);
+                });
+        });
+
+        // Delegar el evento click a los botones de seleccionar
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.matches('.select-btn')) {
+                const id = e.target.getAttribute('data-id');
+                console.log('Seleccionado:', id);
+                // Aquí puedes añadir la lógica para manejar la selección del usuario
+            }
+        });
+    </script>
 </body>
 
 </html>

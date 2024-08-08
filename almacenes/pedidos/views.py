@@ -11,7 +11,7 @@ from django.urls import reverse
 from datetime import datetime
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
-import os
+from datetime import datetime
 
 
 from .models import Pedido, Autorizacion_pedido
@@ -54,30 +54,45 @@ def buscador(request):
     }
     return  render(request, 'pedidos/index.html', context)
 
+def listar_info_material(request,id_material):
+  
+    material =  get_object_or_404(Materiales, pk=id_material)
+    data={
+        'id':material.id,
+        'codigo':material.codigo,
+        'nombre':material.nombre
+    }   
+    return JsonResponse({"data":data})
+#------------------------------
 
-def realizar_pedido(request, id_material):
+def realizar_pedido(request):
     id_usuario= request.user.id
     if request.method =='POST':
-        formulario=  Formualrio_pedido(request.POST)
-        if formulario.is_valid():
+       try:
+            print(request.POST)
+            id_material=request.POST["id_material"]
+            descripcion = request.POST["descripcion"]
+            unidad_manejo=request.POST["unidad_manejo"]
+            cantidad_pedido =request.POST["cantidad_pedido"]
+            if not id_material or not descripcion or not unidad_manejo or not cantidad_pedido:
+                 return JsonResponse({"error":"Los campos son obligatorios"})
             usuario = get_object_or_404(Usuario, id=id_usuario)
             material = get_object_or_404(Materiales, id=id_material)
-            pedido = formulario.save(commit=False)
-            pedido.usuario=usuario
-            pedido.material= material
+            pedido= Pedido.objects.create(descripcion=descripcion ,
+                                          unidad_manejo=unidad_manejo,
+                                          cantidad_pedida=cantidad_pedido,
+                                          usuario=usuario,
+                                          material=material)
             pedido.save()
-            return HttpResponse('pedido realizado')
-            
-        else:
-            formulario=  Formualrio_pedido(request.POST)
-    else:
-        formulario=  Formualrio_pedido()
-    context={
-        'material':get_object_or_404(Materiales,pk=id_material),
-        'forms': formulario
-    }
-    return render(request , 'pedidos/realizar_pedido.html', context)
+            return JsonResponse({"data":"Pedido Realizado"})
+       except Exception as e:
+           print("ERROR", e)
+           return JsonResponse({"error":"Ocurrio un error al realiza el pedido"})
+           
 
+     
+
+#------------------------------
 def listar_pedidos(request):
     listando_pedidos = Pedido.objects.filter(aprobado_unidad=True).distinct('usuario')
     context={
@@ -107,16 +122,32 @@ def realizar_entrega(request):
     if request.method == 'POST':
         id= request.POST['pedido_id']
         cantidad_entregada = request.POST['cantidad_entregada']
+        if not cantidad_entregada:
+            return JsonResponse({'error':'Campo obligatorio'})
         pedido = get_object_or_404(Pedido,pk= id)
-        if int(cantidad_entregada) > pedido.cantidad_pedida:
-            return JsonResponse({'data':'Cantidad excedida'})
-        elif  cantidad_entregada==pedido.cantidad_pedida:
-            pedido.estado_pedido_almacen ='Completada'
+
+        cantidad_actual_pedido=int(pedido.cantidad_entrega )
+        total = cantidad_actual_pedido + int(cantidad_entregada)
+    
+        material_cantidad = pedido.material.stock
+       
+        if int(cantidad_entregada) < 1:
+             return JsonResponse({'data':'Cantidad minima es: 1'})
+        elif int(total) > pedido.cantidad_pedida:
+            return JsonResponse({'data':f'Cantidad maxima es:{pedido.cantidad_pedida - pedido.cantidad_entrega}'})
+        elif int( cantidad_entregada ) > material_cantidad:
+            return JsonResponse({'data':f'El material :{pedido.material.nombre} solo tiene : {material_cantidad}'   })
         elif int(cantidad_entregada) < pedido.cantidad_pedida:
             pedido.estado_pedido_almacen ='Incompleto'
-        pedido.cantidad_entrega = cantidad_entregada
+        pedido.cantidad_entrega = total
+        pedido.material.stock= material_cantidad - int(cantidad_entregada)
+        pedido.fecha_entrega_salida = datetime.now()
         pedido.save()
-        return JsonResponse({'data':'recivido'})
+        pedido.material.save()
+        if  pedido.cantidad_entrega == pedido.cantidad_pedida:
+            pedido.estado_pedido_almacen ='Completada'
+            pedido.save()
+        return JsonResponse({'data':'Enviado'})
 
 
 def mis_pedidos(request): #muestra los pedidos de cada unidad o secretaria
@@ -134,13 +165,12 @@ def mostrar_informacion_pedidio_aprobaciones(request,id_pedido):
         data=[]
         pedido = get_object_or_404(Pedido, pk=id_pedido)
         aprobaciones = Autorizacion_pedido.objects.filter(pedido= pedido.id)
-        print(aprobaciones)
         for aprobacion in aprobaciones:
             informacion ={
-            'secretaria':aprobacion.usuario.unidad.nombre,
+            'unidad':aprobacion.usuario.unidad.nombre,
             'aprobacion':aprobacion.estado_autorizacion,
             'nombre':aprobacion.usuario.persona.nombre + " " + aprobacion.usuario.persona.apellidos ,
-            'area':aprobacion.usuario.unidad.nombre,
+            'oficina':aprobacion.usuario.oficina.nombre,
             'fecha': aprobacion.fecha_de_autorizacion.strftime('%Y-%m-%d') if aprobacion.fecha_de_autorizacion else None
             }
             data.append(informacion)

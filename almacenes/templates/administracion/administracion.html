@@ -2,15 +2,89 @@
 
 {% block index %}
 
-<div class="container">
-    <div>
-        <h2>Bienvenidos a mi Almacen <h3>{{usuario.persona.nombre}}
-                {{usuario.persona.apellidos}}</h3>
-        </h2>
+<style>
+    .card-custom {
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s;
+    }
+
+    .card-custom:hover {
+        transform: scale(1.05);
+    }
+
+    .bg-custom-blue {
+        background-color: #1e90ff;
+    }
+
+    .bg-custom-green {
+        background-color: #32cd32;
+    }
+
+    .bg-custom-orange {
+        background-color: #ff8c00;
+    }
+
+    .bg-custom-red {
+        background-color: #dc143c;
+    }
+
+    .bg-custom-gray {
+        background-color: #f8f9fa;
+    }
+
+    .bg-custom-teal {
+        background-color: #20c997;
+    }
+
+    .card-small {
+        height: 150px;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h2>Bienvenidos a mi Almacén</h2>
+        <h3>{{ usuario.persona.nombre }} {{ usuario.persona.apellidos }}</h3>
+    </div>
+
+    <!-- Estadísticas Principales -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom bg-custom-blue text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pedidos</h5>
+                    <p class="card-text">123</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom bg-custom-green text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Materiales</h5>
+                    <p class="card-text">456</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom bg-custom-orange text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Usuarios</h5>
+                    <p class="card-text">789</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom bg-custom-red text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Proveedores</h5>
+                    <p class="card-text">101</p>
+                </div>
+            </div>
+        </div>
     </div>
 
 
 </div>
-
 
 {% endblock index %}

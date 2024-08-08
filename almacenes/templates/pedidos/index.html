@@ -1,17 +1,15 @@
 {% extends '../base.usuarios.html' %}
 
 {% block usuario %}
-<div class="container-fluid mt-5 ">
+<div class="container-fluid mt-5">
     <div class="row">
         <div class="col-sm-12 col-md-4">
-
-            <form action="{%url 'index' %}" method="POST">
+            <form action="{% url 'index' %}" method="POST">
                 {% csrf_token %}
                 <h4>Buscar por categoria</h4>
                 <select class="form-select" name="categoria_id">
-                    {%for categoria in listado_categoria %}
-                    <option value="{{categoria.id}}">{{categoria.nombre}}</option>
-
+                    {% for categoria in listado_categoria %}
+                    <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
                     {% endfor %}
                 </select>
                 <div class="text-center mt-4">
@@ -21,9 +19,8 @@
         </div>
         <div class="col-sm-12 col-md-8">
             <div class="text-center">
-                <h3>Lista de {{categoria}}</h3>
+                <h3>Lista de {{ categoria }}</h3>
             </div>
-
             <div class="table-responsive mt-4">
                 <table class="table table-striped">
                     <thead>
@@ -43,8 +40,10 @@
                             <td>{{ material.marca }}</td>
                             <td>{{ material.stock }}</td>
                             <td>
-                                <a href="{% url 'realizar_pedido' material.id %}"
-                                    class="btn btn-success btn-sm">Ordenar</a>
+                                <button onclick="listar_informacion_material('{{ material.id }}')" type="button"
+                                    class="btn btn-primary" data-toggle="modal" data-target="#pedidoModal">
+                                    Realizar pedido
+                                </button>
                             </td>
                         </tr>
                         {% empty %}
@@ -55,13 +54,103 @@
                     </tbody>
                 </table>
             </div>
-
             {% include 'paginador/paginador.html' %}
         </div>
-
-
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="pedidoModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalLabel">Detalles del Pedido y Aprobación</h5>
+            </div>
+            <div class="modal-body">
+                <form id="pedido_formulario" action="{url 'realizar pedido'}" method="POST">
+                    {% csrf_token %}
+                    <!-- Detalles del Pedido -->
+                    <legend class="text-muted">Informaciion del material</legend>
+                    <div class="form-group">
+                        <label for="productos" class="font-weight-bold">Material</label>
+                        <ul id="productos" class="list-group">
+                            <li class="list-group-item">
+                                <input type="text" id="codigo" class="form-control mb-2" disabled>
+                                <input type="text" id="material" class="form-control" disabled>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Campos de Aprobación -->
+                    <fieldset>
+                        <legend class="text-muted">Formulario de pedido</legend>
+                        <input type="text" id="id" name="id_material" class="form-control mb-2" hidden>
+                        <div class="form-group">
+                            <label for="campoTextoArea" class="font-weight-bold">Descripcion</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="campoNumero" class="font-weight-bold">Cantidad</label>
+                            <input type="number" class="form-control" id="campoNumero" name="cantidad_pedido" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="campoTexto" class="font-weight-bold">Unidad de manejo</label>
+                            <input type="text" class="form-control" value="pieza" id="campoTexto" name="unidad_manejo">
+                        </div>
+                    </fieldset>
+                    <div class="text-center mt-4">
+                        <button id="enviar" type="submit" class="btn btn-success">Enviar</button>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <span id="mensaje"></span>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 {% endblock usuario %}
+
+{% block js %}
+<script>
+    function listar_informacion_material(id_material) {
+        axios.get(`listar_info_material/${id_material}`)
+            .then((result) => {
+                if (result.data.data) {
+                    document.getElementById('id').value = result.data.data.id;
+                    document.getElementById('codigo').value = result.data.data.codigo;
+                    document.getElementById('material').value = result.data.data.nombre;
+                }
+            })
+            .catch((err) => {
+                alert('Error al obtener los detalles del material');
+                console.error(err);
+            });
+    }
+
+
+    document.getElementById('enviar').addEventListener("click", (e) => {
+        e.preventDefault()
+        const formulario = document.getElementById('pedido_formulario')
+        console.log(formulario);
+
+        axios.post("realizar_pedido", formulario)
+            .then((result) => {
+                console.log(result);
+
+                if (result.data.data) {
+                    document.getElementById("mensaje").innerHTML = result.data.data
+                } else if (result.data.error) {
+                    document.getElementById("mensaje").innerHTML = result.data.error
+                }
+            })
+            .catch((err) => {
+                alert('Error al obtener los detalles del material');
+                console.error(err);
+            });
+    })
+</script>
+{% endblock js %}

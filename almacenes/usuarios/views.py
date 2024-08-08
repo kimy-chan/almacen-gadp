@@ -25,7 +25,7 @@ def login_sistema(request):
                 login(request, user)
                 return redirect('index')
         else:
-            return render(request, '../usuarios/login.html', {'error_message': 'Credenciales inválidas'})
+            return render(request, 'usuarios/login.html', {'error_message': 'Credenciales inválidas'})
     else:
         return render(request, 'usuarios/login.html')
 
@@ -180,5 +180,21 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-def crear_ruta_pedido(request):
-    return render(request,'usuarios/rutas.pedidos.html')
+def mi_perfil(request, id_usuario):
+    return render(request,'usuarios/mi_perfil.html')
+def buscar_cuenta(request, email):
+    if not email:
+        return  JsonResponse({'mensaje':'Ingrese su email'})
+    
+    cuentas = Usuario.objects.filter(email = email)
+    cuentasEncontradas=[]
+    for cuenta in cuentas:
+        data={
+            'id':cuenta.id,
+            'nombres': cuenta.persona.nombre + cuenta.persona.nombre,
+            'username':cuenta.username
+        }
+        cuentasEncontradas.append(data)
+    if len(cuentasEncontradas) == 0:
+         return  JsonResponse({'mensaje':'Cuenta no encontra'})
+    return  JsonResponse({'data':cuentasEncontradas})

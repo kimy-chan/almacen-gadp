@@ -8,16 +8,18 @@ function mostrar_aprobaciones_pedido(id_pedido) {
                 const tbody = document.getElementById('tbody_table');
                 tbody.innerHTML = '';
                 result.data.data.forEach(element => {
+                    console.log(element.unidad);
+
                     const row = document.createElement('tr');
                     const name_nombre = document.createElement('td');
                     name_nombre.textContent = element.nombre;
                     row.appendChild(name_nombre);
-                    const name_secretaria = document.createElement('td');
-                    name_secretaria.textContent = element.secretaria;
-                    row.appendChild(name_secretaria);
-                    const area = document.createElement('td');
-                    area.textContent = element.area;
-                    row.appendChild(area);
+                    const unidad = document.createElement('td');
+                    unidad.textContent = element.unidad;
+                    row.appendChild(unidad);
+                    const oficina = document.createElement('td');
+                    oficina.textContent = element.oficina == 'Ninguna' ? 'Encargado de unidad' : element.oficina;
+                    row.appendChild(oficina);
                     const aprobacion = document.createElement('td');
                     aprobacion.textContent = element.aprobacion ? 'Aprobado' : 'No Aprobado';
                     row.appendChild(aprobacion);
