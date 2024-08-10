@@ -69,7 +69,6 @@ def realizar_pedido(request):
     id_usuario= request.user.id
     if request.method =='POST':
        try:
-            print(request.POST)
             id_material=request.POST["id_material"]
             descripcion = request.POST["descripcion"]
             unidad_manejo=request.POST["unidad_manejo"]
@@ -78,12 +77,20 @@ def realizar_pedido(request):
                  return JsonResponse({"error":"Los campos son obligatorios"})
             usuario = get_object_or_404(Usuario, id=id_usuario)
             material = get_object_or_404(Materiales, id=id_material)
+            if int(cantidad_pedido) <=  0:
+                return JsonResponse({"error":"Ingrese un numero mayor a 0", })
+            if int(cantidad_pedido) > material.stock:
+                return JsonResponse({"error":f"Solo queda: {material.stock} en el material: {material.nombre}",})
+            total =  material.stock- int(cantidad_pedido)
             pedido= Pedido.objects.create(descripcion=descripcion ,
                                           unidad_manejo=unidad_manejo,
-                                          cantidad_pedida=cantidad_pedido,
+                                          cantidad_pedida=total,
                                           usuario=usuario,
                                           material=material)
+      
+            material.stock= total
             pedido.save()
+            material.save()
             return JsonResponse({"data":"Pedido Realizado"})
        except Exception as e:
            print("ERROR", e)
@@ -101,7 +108,8 @@ def listar_pedidos(request):
     return render(request, 'pedidos/listar_pedido.html', context)
 
 def listando_pedido_almacen(request, id_usuario):
-    pedido = Pedido.objects.filter(aprobado_unidad=True, usuario=id_usuario)       
+    pedido = Pedido.objects.filter(aprobado_unidad=True, usuario=id_usuario) 
+    pedido = paginador_general(request, pedido)      
     context = {
         'data': pedido
         }
@@ -125,28 +133,20 @@ def realizar_entrega(request):
         if not cantidad_entregada:
             return JsonResponse({'error':'Campo obligatorio'})
         pedido = get_object_or_404(Pedido,pk= id)
-
-        cantidad_actual_pedido=int(pedido.cantidad_entrega )
-        total = cantidad_actual_pedido + int(cantidad_entregada)
-    
-        material_cantidad = pedido.material.stock
-       
         if int(cantidad_entregada) < 1:
              return JsonResponse({'data':'Cantidad minima es: 1'})
-        elif int(total) > pedido.cantidad_pedida:
-            return JsonResponse({'data':f'Cantidad maxima es:{pedido.cantidad_pedida - pedido.cantidad_entrega}'})
-        elif int( cantidad_entregada ) > material_cantidad:
-            return JsonResponse({'data':f'El material :{pedido.material.nombre} solo tiene : {material_cantidad}'   })
-        elif int(cantidad_entregada) < pedido.cantidad_pedida:
-            pedido.estado_pedido_almacen ='Incompleto'
-        pedido.cantidad_entrega = total
-        pedido.material.stock= material_cantidad - int(cantidad_entregada)
+        elif int(cantidad_entregada) > pedido.cantidad_pedida:
+            return JsonResponse({'data':f'Cantidad maxima es:{pedido.cantidad_pedida}'})
+        
+        cantidad_pedida = pedido.cantidad_pedida - int(cantidad_entregada)
+        total_stock = pedido.material.stock
+        nuevo_stock = total_stock + cantidad_pedida
         pedido.fecha_entrega_salida = datetime.now()
+        pedido.cantidad_entrega = cantidad_entregada
+        pedido.estado_pedido_almacen ='Completada'
+        pedido.material.stock = nuevo_stock
         pedido.save()
         pedido.material.save()
-        if  pedido.cantidad_entrega == pedido.cantidad_pedida:
-            pedido.estado_pedido_almacen ='Completada'
-            pedido.save()
         return JsonResponse({'data':'Enviado'})
 
 
