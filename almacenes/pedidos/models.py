@@ -2,7 +2,6 @@ from django.db import models
 from  usuarios.models import Usuario
 from materiales.models import Materiales
 class Pedido(models.Model):
-    descripcion =models.TextField(blank=False , null=False)
     unidad_manejo=models.CharField(max_length=20, blank= False ,null= False)
     cantidad_pedida=models.IntegerField(blank=False, null=False, default=0)
     cantidad_entrega=models.IntegerField(blank= True ,null= True, default=0)
@@ -21,6 +20,7 @@ class Pedido(models.Model):
     aprobado_unidad = models.BooleanField( blank= True, null=True) 
     aprobado_almacen = models.BooleanField( blank= True, null=True) 
     estado_pedido_almacen = models.CharField(blank=False, null=False, default='Pendiente')
+    estado_de_pedido=models.CharField(blank=False, null=False, default='pendiente')
     fecha_pedido= models.DateTimeField(auto_now_add=True, blank=False, null=False)
     fecha_entrega_salida= models.DateTimeField(blank=True, null=True)
    

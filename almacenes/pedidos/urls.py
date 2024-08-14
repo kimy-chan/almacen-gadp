@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index, lista_pedido_por_id,listar_info_material,realizar_entrega,imprecion_solicitud,autorizar_pedidos_almacen,listando_pedido_almacen,generate_pdf,buscador,mostrar_informacion_pedidio_aprobaciones, realizar_pedido, listar_pedidos, mis_pedidos,todos_mis_pedidos, listar_pedidos_unidad, autorizar_pedidos, rechazar_pedido_unidad, eliminar_mi_pedido
+from .views import index, lista_pedido_por_id,cambiar_estado_pedido,listar_info_material,realizar_entrega,imprecion_solicitud,autorizar_pedidos_almacen,listando_pedido_almacen,generate_pdf,buscador,mostrar_informacion_pedidio_aprobaciones, realizar_pedido, listar_pedidos, mis_pedidos,todos_mis_pedidos, listar_pedidos_unidad, autorizar_pedidos, rechazar_pedido_unidad, eliminar_mi_pedido
 
 urlpatterns = [
    path('index',index , name='index' ),
@@ -19,6 +19,7 @@ urlpatterns = [
    path('generar/pdf/<int:id_pedido>',generate_pdf, name='pdf' ),
     path('informacion_pedido/lista_pedido_por_id/<int:id_pedido>',lista_pedido_por_id, name='lista_pedido_por_id' ),
       path('informacion_pedido/realizar_entrega',realizar_entrega, name='realizar_entrega' ),
-    path('listar_info_material/<int:id_material>',listar_info_material, name='listar_info_material' )
+    path('listar_info_material/<int:id_material>',listar_info_material, name='listar_info_material' ),
+        path('cambiar_estado_pedido',cambiar_estado_pedido, name='cambiar_estado_pedido' )
    
 ]

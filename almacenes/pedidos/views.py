@@ -17,6 +17,9 @@ from datetime import datetime
 from .models import Pedido, Autorizacion_pedido
 
 def index(request):
+   
+
+    pedido_pendiente= lista_pedidos_por_estado(request,'pendiente')
     nombre_categoria='materiales'
     if (request.method == 'POST'):
         id_categoria = request.POST.get('categoria_id')
@@ -33,14 +36,17 @@ def index(request):
     else:
         productos_categoria= Materiales.objects.select_related('categoria').filter(es_habilitado=True)
         productos_categoria= paginador_general(request, productos_categoria)
-            
+       
+
     context ={
+            'data1':pedido_pendiente,
             'data':productos_categoria,
             'categoria':nombre_categoria
          
                 }
     return render(request, 'pedidos/index.html', context)
    
+
 
 
 def buscador(request):
@@ -70,10 +76,8 @@ def realizar_pedido(request):
     if request.method =='POST':
        try:
             id_material=request.POST["id_material"]
-            descripcion = request.POST["descripcion"]
-            unidad_manejo=request.POST["unidad_manejo"]
             cantidad_pedido =request.POST["cantidad_pedido"]
-            if not id_material or not descripcion or not unidad_manejo or not cantidad_pedido:
+            if not id_material or not cantidad_pedido:
                  return JsonResponse({"error":"Los campos son obligatorios"})
             usuario = get_object_or_404(Usuario, id=id_usuario)
             material = get_object_or_404(Materiales, id=id_material)
@@ -82,9 +86,9 @@ def realizar_pedido(request):
             if int(cantidad_pedido) > material.stock:
                 return JsonResponse({"error":f"Solo queda: {material.stock} en el material: {material.nombre}",})
             total =  material.stock- int(cantidad_pedido)
-            pedido= Pedido.objects.create(descripcion=descripcion ,
-                                          unidad_manejo=unidad_manejo,
-                                          cantidad_pedida=total,
+
+            pedido= Pedido.objects.create(
+                                          cantidad_pedida=int(cantidad_pedido),
                                           usuario=usuario,
                                           material=material)
       
@@ -97,7 +101,17 @@ def realizar_pedido(request):
            return JsonResponse({"error":"Ocurrio un error al realiza el pedido"})
            
 
-     
+def cambiar_estado_pedido(request):
+    if request.method == 'GET':
+        ids = request.GET.getlist('id')
+        for id in ids:
+            pedido= get_object_or_404(Pedido, pk=id)
+            pedido.estado_de_pedido='realizado'
+            pedido.save()    
+        return JsonResponse({'status': 'success', 'ids': ids})
+    
+    # Si la solicitud no es GET, retorna un error
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
 
 #------------------------------
 def listar_pedidos(request):
@@ -151,14 +165,18 @@ def realizar_entrega(request):
 
 
 def mis_pedidos(request): #muestra los pedidos de cada unidad o secretaria
-    id_usuario= request.user.id
-    pedidos= Pedido.objects.select_related('usuario').filter(usuario_id=id_usuario).order_by('-fecha_pedido')
+    pedidos= lista_pedidos_por_estado(request, 'realizado')
     pedidos= paginador_general(request, pedidos)
     context={
         'data':pedidos,
         'title':'Mis pedidos'   
     }
     return render(request, 'pedidos/mis_pedidos.html', context)
+
+def lista_pedidos_por_estado(request,estado):
+    id_usuario= request.user.id
+    pedidos= Pedido.objects.select_related('usuario').filter(usuario_id=id_usuario, estado_de_pedido=estado).order_by('-fecha_pedido')
+    return pedidos
 
 def mostrar_informacion_pedidio_aprobaciones(request,id_pedido):
     if request.method == 'GET':

@@ -1,5 +1,5 @@
 {% extends '../base.usuarios.html' %}
-
+{% load static %}
 {% block usuario %}
 <div class="container-fluid mt-5">
     <div class="row">
@@ -42,7 +42,7 @@
                             <td>
                                 <button onclick="listar_informacion_material('{{ material.id }}')" type="button"
                                     class="btn btn-primary" data-toggle="modal" data-target="#pedidoModal">
-                                    Realizar pedido
+                                    Añadir
                                 </button>
                             </td>
                         </tr>
@@ -59,6 +59,19 @@
     </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- Modal -->
 <div class="modal fade" id="pedidoModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -67,7 +80,7 @@
                 <h5 class="modal-title" id="modalLabel">Detalles del Pedido y Aprobación</h5>
             </div>
             <div class="modal-body">
-                <form id="pedido_formulario" action="{url 'realizar pedido'}" method="POST">
+                <form id="pedido_formulario" action="{% url 'realizar_pedido' %}" method="POST">
                     {% csrf_token %}
                     <!-- Detalles del Pedido -->
                     <legend class="text-muted">Informaciion del material</legend>
@@ -86,16 +99,8 @@
                         <legend class="text-muted">Formulario de pedido</legend>
                         <input type="text" id="id" name="id_material" class="form-control mb-2" hidden>
                         <div class="form-group">
-                            <label for="campoTextoArea" class="font-weight-bold">Descripcion</label>
-                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
                             <label for="campoNumero" class="font-weight-bold">Cantidad</label>
                             <input type="number" class="form-control" id="campoNumero" name="cantidad_pedido" value="1">
-                        </div>
-                        <div class="form-group">
-                            <label for="campoTexto" class="font-weight-bold">Unidad de manejo</label>
-                            <input type="text" class="form-control" value="pieza" id="campoTexto" name="unidad_manejo">
                         </div>
                     </fieldset>
                     <div class="text-center mt-4">
@@ -112,10 +117,97 @@
     </div>
 </div>
 
+
+
+
+
+
+<!--------------------------------------------MIS PEDIDOS-------------------------------------------------------->
+
+
+
+{% if data1|length > 1 %}
+<div class="container mt-2">
+    <div class="text-center">
+        <h2>{{ title }}</h2>
+    </div>
+    <div>
+        {{ error }}
+    </div>
+    <form id="pedidoForm" method="{% url 'cambiar_estado_pedido' %}  ">
+        {% csrf_token %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Codigo</th>
+                    <th>Material</th>
+                    <th>descripcion</th>
+                    <th>Cantidad de pedido</th>
+                    <th>Cantidad de entrega</th>
+                    <th>Fecha</th>
+                    <th>Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in data1 %}
+                <tr>
+                    <td hidden> <input type="text" class="id_pedido" value="{{ pedido.id }}"></td>
+
+                    <td>{{ pedido.material.codigo }}</td>
+                    <td>{{ pedido.material.nombre }}</td>
+                    <td>{{ pedido.descripcion }}</td>
+                    <td>{{ pedido.cantidad_pedida }}</td>
+                    <td>{{ pedido.cantidad_entrega }}</td>
+                    <td>{{ pedido.fecha_pedido|date:"m/d/y" }}</td>
+                    <td>
+                        <a href="{% url 'eliminar_mi_pedido' pedido.id %}" class='btn btn-danger btn-sm'>Cancelar
+                            pedido</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% include 'paginador/paginador.html' %}
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success btn-sm" id="realizarPedidoBtn">Realizar pedido</button>
+            <a class="btn btn-danger btn-sm" href="">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endif %}
+
+
 {% endblock usuario %}
 
 {% block js %}
+<script src="{% static 'js/alertas.js' %}"></script>
+
 <script>
+    document.getElementById('realizarPedidoBtn').addEventListener('click', function (e) {
+        e.preventDefault()
+        var ids = [];
+        var idElements = document.querySelectorAll('.id_pedido');
+        idElements.forEach(function (element) {
+            ids.push(element.value);
+        });
+
+        var queryString = ids.map(id => `id=${encodeURIComponent(id)}`).join('&');
+
+        // Usa Axios para enviar la solicitud GET
+        axios.get(`/cambiar_estado_pedido?${queryString}`)
+            .then((result) => {
+                window.location.reload()
+            })
+            .catch((err) => {
+                console.error(err); // Muestra el error en la consola
+            });
+
+        console.log(ids); // Muestra todos los IDs en la consola
+    });
+
+
     function listar_informacion_material(id_material) {
         axios.get(`listar_info_material/${id_material}`)
             .then((result) => {
