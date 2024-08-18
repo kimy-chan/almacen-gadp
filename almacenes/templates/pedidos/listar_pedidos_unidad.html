@@ -2,7 +2,44 @@
 
 {% block usuario %}
 
-<div class="container">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid">
     <div class="text-center">
         <h2>{{ usuario.unidad.nombre }}</h2>
     </div>
@@ -11,12 +48,10 @@
             <tr>
                 <th>Codigo</th>
                 <th>Nombre completo</th>
-                <th>oficina</th>
+                <th>Oficina</th>
                 <th>Material</th>
-                <th>Descripcion</th>
                 <th>Cantidad de pedido</th>
-                <th>Fecha de pedido</th>
-                <th>Fecha</th>
+                <th>Cantidad de pedido 2</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -27,29 +62,62 @@
                 <td>{{ pedido.usuario.persona.nombre }} {{ pedido.usuario.persona.apellidos }}</td>
                 <td>{{ pedido.usuario.oficina.nombre }}</td>
                 <td>{{ pedido.material.nombre }}</td>
-                <td>{{ pedido.descripcion }}</td>
-                <td>{{ pedido.cantidad_pedida }} {{ pedido.unidad_manejo }}</td>
-                <td>{{ pedido.fecha_pedido|date:"m/d/y" }}</td>
-                <td>
 
+                <td>{{ pedido.cantidad_pedida }} {{ pedido.unidad_manejo }}</td>
+
+                {% if pedido.aprobado_unidad == false %}
+                <td>
+                    {{ pedido.sub_cantidad_pedida }}
+                    <div class="form-container">
+                        <form id="form_sub_pedido_{{ pedido.id }}" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <!-- Campos ocultos -->
+                                    <input type="number" name="pedido" value="{{ pedido.id }}"
+                                        class="form-control d-none" id="pedido_{{ pedido.id }}">
+                                    <input type="number" name="material" value="{{ pedido.material.id }}"
+                                        class="form-control d-none" id="material_{{ pedido.id }}">
+                                    <input name="sub_pedido" required type="number" class="form-control"
+                                        id="sub_pedido_{{ pedido.id }}" placeholder="Ingrese un valor">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary btn-sm" type="submit"
+                                            data-form-id="{{ pedido.id }}">
+                                            <i class="fas fa-floppy-disk"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
                 </td>
+                {% else %}
+                <td></td>
+                {% endif %}
                 <td>
                     {% if pedido.aprobado_unidad == None %}
                     <div class="row">
                         <div class="col-6">
-                            <a href="{% url 'autorizar_pedido' pedido.id %}"
-                                class="btn btn-success btn-sm">Autorizar</a>
+                            <a href="{% url 'autorizar_pedido' pedido.id %}" class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i>
+                            </a>
                         </div>
                         <div class="col-6">
-                            <a href="{% url 'rechazar_pedido_unidad' pedido.id %}"
-                                class="btn btn-danger btn-sm">Rechazar</a>
+                            <a href="{% url 'rechazar_pedido_unidad' pedido.id %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-times"></i>
+                            </a>
                         </div>
                     </div>
                     {% elif pedido.aprobado_unidad %}
-                    <a href="{% url 'imprimir' pedido.id %}" class="btn btn-danger btn-sm">PDF</a>
+                    <a href="{% url 'imprimir' pedido.id %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </a>
                     {% elif pedido.aprobado_unidad == False %}
-                    <button class="btn btn-danger btn-sm" disabled>Rechazado</button>
-                    {% endif%}
+                    <button class="btn btn-danger btn-sm" disabled>
+                        <i class="fas fa-times"></i> Rechazado
+                    </button>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -58,6 +126,64 @@
     {% include 'paginador/paginador.html' %}
 </div>
 
+<!-- Botón de Imprimir -->
+<div class="text-center mb-3">
+    <a href="{% url 'imprimir' data.0.numero_pedido %}" class="btn btn-primary">
+        <i class="fas fa-print"></i> Imprimir
+    </a>
+</div>
+<!-- Modal HTML -->
+<!-- Modal HTML -->
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Aquí se insertará el contenido del mensaje -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 {% endblock usuario %}
+
+
+{% block js %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('button[data-form-id]').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const formId = button.getAttribute('data-form-id');
+                const form = document.getElementById(`form_sub_pedido_${formId}`);
+                const formData = new FormData(form);
+                axios.post("{% url 'sub_pedido' %}", formData)
+                    .then((result) => {
+
+                        const modalBody = document.getElementById('modalBody');
+                        modalBody.textContent = result.data.data;
+                        const responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
+                        responseModal.show();
+                    })
+                    .catch((err) => {
+                        const modalBody = document.getElementById('modalBody');
+                        modalBody.textContent = err.response ? err.response.data : err.message;
+                        const responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
+                        responseModal.show();
+                    });
+            });
+        });
+    });
+
+
+</script>
+
+{% endblock js %}

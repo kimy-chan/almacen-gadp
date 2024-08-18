@@ -133,32 +133,28 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>CÓDIGO</th>
-                    <th>DESCRIPCIÓN</th>
+                    <th>Codigo</th>
+
                     <th>Unidad de Manejo</th>
                     <th>Cantidad Pedida</th>
+                    <th>Cantidad modificada</th>
                     <th>Cantidad Entrega</th>
-                    <th>Partida Presupuestada</th>
                     <th>Costo Unidad</th>
                     <th>TOTAL</th>
                 </tr>
             </thead>
             <tbody>
+                {% for pedido in data %}
                 <tr>
                     <td>{{ pedido.material.codigo }}</td>
-                    <td>{{ pedido.descripcion }}</td>
                     <td>{{ pedido.unidad_manejo }}</td>
                     <td>{{ pedido.cantidad_pedida }}</td>
+                    <td>{{ pedido.sub_cantidad_pedida }}</td>
                     <td>{{ pedido.cantidad_entrega }}</td>
-                    {%if pedido.partida_presupuestada == None %}
-                    <td>0</td>
-                    {% else %}
-                    <td>{{ pedido.partida_presupuestada }}</td>
-                    {% endif %}
                     <td>{{ pedido.material.precio_unidad }}</td>
                     <td>{{ pedido.material.precio_unidad }}</td>
                 </tr>
-                <!-- Repeat the above <tr> block for each item -->
+                {% endfor %}
             </tbody>
         </table>
 
@@ -196,7 +192,7 @@
         </table>
 
         <div class="text-center mt-4">
-            <a href="{% url 'pdf' pedido.id %}" class="btn">Generar PDF</a>
+            <a href="{% url 'imprimir' data.0.numero_pedido %}" class="btn">Generar PDF</a>
         </div>
     </div>
 </body>

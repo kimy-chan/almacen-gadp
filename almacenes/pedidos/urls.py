@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index, lista_pedido_por_id,cambiar_estado_pedido,listar_info_material,realizar_entrega,imprecion_solicitud,autorizar_pedidos_almacen,listando_pedido_almacen,generate_pdf,buscador,mostrar_informacion_pedidio_aprobaciones, realizar_pedido, listar_pedidos, mis_pedidos,todos_mis_pedidos, listar_pedidos_unidad, autorizar_pedidos, rechazar_pedido_unidad, eliminar_mi_pedido
+from .views import index,listar_pedidos_por_codigo ,sub_pedido,lista_pedido_por_id,cambiar_estado_pedido,listar_info_material,realizar_entrega,imprecion_solicitud,autorizar_pedidos_almacen,listando_pedido_almacen,generate_pdf,buscador,mostrar_informacion_pedidio_aprobaciones, realizar_pedido, listar_pedidos, mis_pedidos,todos_mis_pedidos, listar_pedidos_unidad, autorizar_pedidos, rechazar_pedido_unidad, eliminar_mi_pedido
 
 urlpatterns = [
    path('index',index , name='index' ),
@@ -15,11 +15,15 @@ urlpatterns = [
    path('rechazar_pedido_unidad/<int:id_pedido>',rechazar_pedido_unidad, name='rechazar_pedido_unidad' ),
    path('eliminar_mi_pedido/<int:id_pedido>',eliminar_mi_pedido, name='eliminar_mi_pedido'),
    path('informacion/pedido/<int:id_pedido>' , mostrar_informacion_pedidio_aprobaciones , name="info_aprobaciones" ),
-   path('imprimir/<int:id_pedido>',imprecion_solicitud, name='imprimir' ),
+   path('imprimir/<int:numero>',imprecion_solicitud, name='imprimir' ),
+
    path('generar/pdf/<int:id_pedido>',generate_pdf, name='pdf' ),
     path('informacion_pedido/lista_pedido_por_id/<int:id_pedido>',lista_pedido_por_id, name='lista_pedido_por_id' ),
       path('informacion_pedido/realizar_entrega',realizar_entrega, name='realizar_entrega' ),
     path('listar_info_material/<int:id_material>',listar_info_material, name='listar_info_material' ),
-        path('cambiar_estado_pedido',cambiar_estado_pedido, name='cambiar_estado_pedido' )
+        path('cambiar_estado_pedido',cambiar_estado_pedido, name='cambiar_estado_pedido' ),
+            path('sub_pedido',sub_pedido, name='sub_pedido' ),
+            
+                 path('pedidos/numero/<int:numero>',listar_pedidos_por_codigo, name='pedido_numero' )
    
 ]

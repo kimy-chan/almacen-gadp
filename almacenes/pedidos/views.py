@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib.auth.decorators import   login_required
 from .forms import Formualrio_pedido
+import random
 from materiales.models import Materiales
 from django.db.models import Q
 from utils.paginador import paginador_general
@@ -86,7 +87,6 @@ def realizar_pedido(request):
             if int(cantidad_pedido) > material.stock:
                 return JsonResponse({"error":f"Solo queda: {material.stock} en el material: {material.nombre}",})
             total =  material.stock- int(cantidad_pedido)
-
             pedido= Pedido.objects.create(
                                           cantidad_pedida=int(cantidad_pedido),
                                           usuario=usuario,
@@ -100,13 +100,17 @@ def realizar_pedido(request):
            print("ERROR", e)
            return JsonResponse({"error":"Ocurrio un error al realiza el pedido"})
            
+def generar_numero_unico():
+    return random.randint(1000, 9999)
 
 def cambiar_estado_pedido(request):
     if request.method == 'GET':
         ids = request.GET.getlist('id')
+        numero = generar_numero_unico()
         for id in ids:
             pedido= get_object_or_404(Pedido, pk=id)
             pedido.estado_de_pedido='realizado'
+            pedido.numero_pedido=numero
             pedido.save()    
         return JsonResponse({'status': 'success', 'ids': ids})
     
@@ -215,19 +219,42 @@ def todos_mis_pedidos(request):
     }
     return render(request, 'pedidos/mis_pedidos.html', context)
 
-def listar_pedidos_unidad(request, id_usuario): #esta suelto no esta en uso
+def listar_pedidos_unidad(request, id_usuario):
+    print('hola')  # Para depuración
+
+    # Obtiene el usuario por ID
     usuario = get_object_or_404(Usuario, pk=id_usuario)
-    if usuario.encargado== False:
-        return JsonResponse({"mensage" :"no tienes permispo"})
-    pedidos_unidad= Pedido.objects.select_related('usuario','material').filter(
-        usuario__unidad=usuario.unidad.id)
-    pedidos_unidad= paginador_general(request, pedidos_unidad)
-   
-    context={
-        'data':pedidos_unidad
-        }
-    return render(request, 'pedidos/listar_pedidos_unidad.html',context)
-    
+
+    # Verifica si el usuario tiene permiso
+    if not usuario.encargado:
+        return JsonResponse({"mensaje": "No tienes permiso"}, status=403)
+
+    # Filtra los pedidos por la unidad del usuario
+    pedidos_unidad = Pedido.objects.filter(
+        usuario__unidad=usuario.unidad
+    ).order_by('numero_pedido')
+
+
+    pedidos_unicos = {}
+    for pedido in pedidos_unidad:
+        if pedido.numero_pedido not in pedidos_unicos:
+            pedidos_unicos[pedido.numero_pedido] = pedido
+
+    pedidos_unicos_list = list(pedidos_unicos.values())
+
+
+    context = {
+        'data': pedidos_unicos_list
+    }
+
+    return render(request, 'pedidos/usuarios.pedidos.html', context)
+
+def listar_pedidos_por_codigo(request, numero):
+    pedido= Pedido.objects.filter(numero_pedido=numero)
+    context = {
+        'data': pedido
+    }
+    return render(request, 'pedidos/listar_pedidos_unidad.html', context)
     
 def autorizar_pedidos(request, id_pedido):#autoria el pedido de cada unidad
     id_usuario= request.user.id
@@ -266,12 +293,16 @@ def rechazar_pedido_unidad(request, id_pedido):
 
 
 
-def imprecion_solicitud(request,id_pedido):
-    pedido= get_object_or_404(Pedido,pk=id_pedido)
+def imprecion_solicitud(request,numero):
+    pedido= Pedido.objects.filter(numero_pedido=numero)
+    print(pedido)
     context = {
-        'pedido': pedido
+        'data': pedido
     }
     return render(request, "imprimir/solicitud.html", context)
+
+
+
 
 
 def generate_pdf(request, id_pedido):
@@ -286,4 +317,34 @@ def generate_pdf(request, id_pedido):
     if pisa_status.err:
         return HttpResponse('Error generating PDF', status=500)
     return response
-   
+
+
+
+
+def sub_pedido(request):
+    print(request.POST)
+    pedido= request.POST['pedido']
+    sub_pedido= request.POST['sub_pedido']
+    material= request.POST['material']
+    material_existente= get_object_or_404(Materiales, pk=material)
+    if not sub_pedido:
+          return JsonResponse({'data':'Ingrese un valor'})
+
+    if int(sub_pedido) <= 0:
+        return JsonResponse({'data':'No se puede asignar material menor a 0'})
+    if int(sub_pedido) > material_existente.stock:
+        return JsonResponse({'data':'No se puede asignar material mayor al stock'})
+    pedido = get_object_or_404(Pedido, pk= pedido)
+    
+
+
+    pedido.sub_cantidad_pedida= sub_pedido
+
+    cantidad_p= pedido.cantidad_pedida
+    
+    material_existente.stock += cantidad_p
+    stock= material_existente.stock - int(sub_pedido)
+    material_existente.stock=stock
+    material_existente.save()
+    pedido.save()
+    return JsonResponse({'data':'guardado'})
