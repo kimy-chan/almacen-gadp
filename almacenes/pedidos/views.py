@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib.auth.decorators import   login_required
-from .forms import Formualrio_pedido
 import random
 from materiales.models import Materiales
 from django.db.models import Q
@@ -220,9 +219,7 @@ def todos_mis_pedidos(request):
     return render(request, 'pedidos/mis_pedidos.html', context)
 
 def listar_pedidos_unidad(request, id_usuario):
-    print('hola')  # Para depuración
 
-    # Obtiene el usuario por ID
     usuario = get_object_or_404(Usuario, pk=id_usuario)
 
     # Verifica si el usuario tiene permiso
@@ -257,15 +254,17 @@ def listar_pedidos_por_codigo(request, numero):
     return render(request, 'pedidos/listar_pedidos_unidad.html', context)
     
 def autorizar_pedidos(request, id_pedido):#autoria el pedido de cada unidad
+    print('hola')
     id_usuario= request.user.id
     pedido = get_object_or_404(Pedido,pk=id_pedido)
+    numero=pedido.numero_pedido
     usuario = get_object_or_404(Usuario, pk= id_usuario)
     autorizacion_pedido= Autorizacion_pedido.objects.create(pedido=pedido,usuario= usuario, estado_autorizacion= True)
     autorizacion_pedido.save()
     pedido.aprobado_unidad= True
     pedido.save()
-    return redirect(f"{reverse('listar_pedidos_unidad', kwargs={'id_usuario': id_usuario})}?success=Pedido autorizado correctamente")
-
+    url = reverse('pedido_numero', kwargs={'numero': numero})
+    return redirect(f"{url}?success=Pedido autorizado correctamente")
 def autorizar_pedidos_almacen(request, id_pedido, id_usuario):#autoriza pedidos el lamacen
     pedido = get_object_or_404(Pedido,pk=id_pedido)
     usuario = get_object_or_404(Usuario, pk= id_usuario)
@@ -295,9 +294,14 @@ def rechazar_pedido_unidad(request, id_pedido):
 
 def imprecion_solicitud(request,numero):
     pedido= Pedido.objects.filter(numero_pedido=numero)
-    print(pedido)
+    user_pedido = f"{pedido[0].usuario.persona.nombre} { pedido[0].usuario.persona.apellidos }" 
+    autorizacion= Autorizacion_pedido.objects.filter(pedido=pedido[0].id)
+
+    user_autorizacion = f"{autorizacion[0].usuario.persona.nombre} { autorizacion[0].usuario.persona.apellidos }" 
     context = {
-        'data': pedido
+        'data': pedido,
+        'usuario_pedido':user_pedido,
+       'user_autorizacion':user_autorizacion
     }
     return render(request, "imprimir/solicitud.html", context)
 
@@ -305,12 +309,15 @@ def imprecion_solicitud(request,numero):
 
 
 
-def generate_pdf(request, id_pedido):
-    pedido= get_object_or_404(Pedido,pk=id_pedido)
+def generate_pdf(request, numero):
+    pedido= Pedido.objects.filter(numero_pedido=numero)
+    user_pedido = f"{pedido[0].usuario.persona.nombre} { pedido[0].usuario.persona.apellidos }" 
+
     context = {
-        'pedido': pedido
+        'data': pedido,
+        'usuario_pedido':user_pedido
     }
-    html_string = render_to_string('imprimir/imprimir.html', context)
+    html_string = render_to_string('imprimir/solicitud.html', context)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="pedido_materiales.pdf"'
     pisa_status = pisa.CreatePDF(html_string, dest=response)

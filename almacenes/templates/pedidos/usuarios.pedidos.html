@@ -66,29 +66,8 @@
                 <td>{{ pedido.fecha_pedido|date:"m/d/y" }}</td>
 
                 <td>
-                    <a href="{% url 'pedido_numero' pedido.numero_pedido %}">Ver pedidos</a>
-                    {% if pedido.aprobado_unidad == None %}
-                    <div class="row">
-                        <div class="col-6">
-                            <a href="{% url 'autorizar_pedido' pedido.id %}" class="btn btn-success btn-sm">
-                                <i class="fas fa-check"></i>
-                            </a>
-                        </div>
-                        <div class="col-6">
-                            <a href="{% url 'rechazar_pedido_unidad' pedido.id %}" class="btn btn-danger btn-sm">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        </div>
-                    </div>
-                    {% elif pedido.aprobado_unidad %}
-                    <a href="{% url 'imprimir' pedido.id %}" class="btn btn-danger btn-sm">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </a>
-                    {% elif pedido.aprobado_unidad == False %}
-                    <button class="btn btn-danger btn-sm" disabled>
-                        <i class="fas fa-times"></i> Rechazado
-                    </button>
-                    {% endif %}
+                    <a class="btn btn-success btn-sm" href="{% url 'pedido_numero' pedido.numero_pedido %}">Ver
+                        pedidos</a>
                 </td>
             </tr>
             {% endfor %}

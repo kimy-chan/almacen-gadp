@@ -117,9 +117,11 @@
             margin-top: 20px;
         }
 
-        .no-print {
-            display: none;
-            /* Oculta elementos que no deberían imprimirse */
+        /* Estilo para ocultar elementos en la impresión */
+        @media print {
+            .no-print {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -134,7 +136,6 @@
             <thead>
                 <tr>
                     <th>Codigo</th>
-
                     <th>Unidad de Manejo</th>
                     <th>Cantidad Pedida</th>
                     <th>Cantidad modificada</th>
@@ -162,12 +163,12 @@
         <table class="signature-table">
             <tr>
                 <td>
-                    <p>..........................................</p>
+                    <p>...{{ usuario_pedido }}..</p>
                     <p class="signature-label">Pedido por</p>
                     <p>Nombre, cargo y firma</p>
                 </td>
                 <td>
-                    <p>..........................................</p>
+                    <p>...{{ user_autorizacion }}..</p>
                     <p class="signature-label">Autorizado por</p>
                     <p>Nombre, cargo y firma</p>
                 </td>
@@ -192,7 +193,7 @@
         </table>
 
         <div class="text-center mt-4">
-            <a href="{% url 'imprimir' data.0.numero_pedido %}" class="btn">Generar PDF</a>
+            <a href="{% url 'pdf' data.0.numero_pedido %}" class="btn no-print">Generar PDF</a>
         </div>
     </div>
 </body>

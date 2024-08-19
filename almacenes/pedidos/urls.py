@@ -17,7 +17,7 @@ urlpatterns = [
    path('informacion/pedido/<int:id_pedido>' , mostrar_informacion_pedidio_aprobaciones , name="info_aprobaciones" ),
    path('imprimir/<int:numero>',imprecion_solicitud, name='imprimir' ),
 
-   path('generar/pdf/<int:id_pedido>',generate_pdf, name='pdf' ),
+   path('generar/pdf/<int:numero>',generate_pdf, name='pdf' ),
     path('informacion_pedido/lista_pedido_por_id/<int:id_pedido>',lista_pedido_por_id, name='lista_pedido_por_id' ),
       path('informacion_pedido/realizar_entrega',realizar_entrega, name='realizar_entrega' ),
     path('listar_info_material/<int:id_material>',listar_info_material, name='listar_info_material' ),

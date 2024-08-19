@@ -3,7 +3,7 @@ from  usuarios.models import Usuario
 from materiales.models import Materiales
 class Pedido(models.Model):
     unidad_manejo=models.CharField(max_length=20, blank= False ,null= False)
-    numero_pedido=models.IntegerField(max_length=255, blank= True ,null= True)
+    numero_pedido=models.IntegerField(blank= True ,null= True)
     cantidad_pedida=models.IntegerField(blank=False, null=False, default=0)
     cantidad_entrega=models.IntegerField(blank= True ,null= True, default=0)
     partida_presupuestada=models.DecimalField(max_digits=10, decimal_places=2,blank= True ,null= True)
